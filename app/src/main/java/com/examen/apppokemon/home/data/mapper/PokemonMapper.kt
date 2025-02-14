@@ -98,7 +98,7 @@ fun PokemonDetailV2Response.toEntity(): PokemonEntity {
         sprites = spriteString,
         height = this.height,
         weight = this.weight,
-        types =  typesString ,
+        types =  typesString,
     )
 }
 

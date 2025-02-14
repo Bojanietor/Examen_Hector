@@ -13,4 +13,7 @@ class AuthInterceptor : Interceptor {
        Log.d("LA URL:",request.url.toString())
         return chain.proceed(request)
     }
+
+
+
 }

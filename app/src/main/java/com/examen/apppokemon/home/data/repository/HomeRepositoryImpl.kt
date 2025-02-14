@@ -1,6 +1,6 @@
 package com.examen.apppokemon.home.data.repository
 
-import com.examen.apppokemon.home.data.local.Entity.PokemonEntity
+import com.examen.apppokemon.core.utils.NetworkHelper
 import com.examen.apppokemon.home.data.local.PokemonDao
 import com.examen.apppokemon.home.data.mapper.toDomain
 import com.examen.apppokemon.home.data.mapper.toEntity
@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.zip
 
 class HomeRepositoryImpl(
     private val dao: PokemonDao,
-    private val api: PokemonApi
+    private val api: PokemonApi,
+    private val networkHelper: NetworkHelper
 ) : HomeRepository {
     override fun getPokemons(offset: Int, limit: Int): Flow<List<Pokemon>> {
         val localFlow = dao.getAllPokemonList().map {
@@ -40,6 +40,10 @@ class HomeRepositoryImpl(
         dao.insertPokemon(pokemon.toEntity())
         return dao.getAllPokemonList().map {
             it.map { it.toDomain() } }
+    }
+
+    override fun hasInternet(): Boolean {
+        return networkHelper.isInternetAvailable()
     }
 
 

@@ -25,9 +25,10 @@ class PokemonDetailViewModel @Inject constructor(
     val state : LiveData<DetailState> = _state
     init {
         val pokemonId = savedStateHandle.get<Long?>("pokemonId")
+        val isFavorite = savedStateHandle.get<Boolean?>("isFavorite")
         if (pokemonId != null) {
             observerPokemon(pokemonId)
-            getPokemonDetail(pokemonId)
+            getPokemonDetail(pokemonId, isFavorite!!)
 
         }
     }
@@ -57,9 +58,9 @@ class PokemonDetailViewModel @Inject constructor(
         }
     }
 
-        fun getPokemonDetail(id: Long ) {
+        fun getPokemonDetail(id: Long, isFavorite: Boolean ) {
         viewModelScope.launch {
-            detailPokemonUseCases.getDetailPokemonUseCases(id).collectLatest {
+            detailPokemonUseCases.getDetailPokemonUseCases(id, isFavorite).collectLatest {
                 _state.value = DetailState(pokemon = it, isLoading = false)
             }
         }

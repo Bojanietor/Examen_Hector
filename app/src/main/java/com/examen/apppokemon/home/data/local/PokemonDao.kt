@@ -16,9 +16,9 @@ interface PokemonDao {
     @Query("SELECT * FROM PokemonEntity WHERE PokemonEntity.id = :id LIMIT 1")
     fun getPokemon(id: Long): Flow<PokemonEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertHabits(pokemonEntitys: List<PokemonEntity>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Update
     suspend fun insertPokemon(pokemonEntity: PokemonEntity)
 }

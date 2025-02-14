@@ -1,13 +1,9 @@
 package com.examen.apppokemon.home.presentation
 
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.examen.apppokemon.detail_pokemon.presentation.DetailState
 import com.examen.apppokemon.home.domain.models.Pokemon.Pokemon
 import com.examen.apppokemon.home.domain.usecase.HomeUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +19,7 @@ class HomeViewModel @Inject constructor(
     val state : LiveData<HomeState> = _state
 
     init {
+        _state.value = HomeState()
         observerPokemon()
         getPokemons()
 
@@ -32,10 +29,10 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.ShowDetailPokemon -> {
-                _state.value = HomeState( showDetail = true, selectedPokemonImage = event.urlImage, pokemons = state.value!!.pokemons)
+                _state.value = HomeState( showDetail = true, selectedPokemonImage = event.urlImage, pokemons = state.value!!.pokemons, isLoading = false)
             }
             is HomeEvent.HiddenDetailPokemon -> {
-                _state.value = HomeState( showDetail = false, selectedPokemonImage = "", pokemons = state.value!!.pokemons)
+                _state.value = HomeState( showDetail = false, selectedPokemonImage = "", pokemons = state.value!!.pokemons, isLoading = false)
             }
             is HomeEvent.onlikeOrDisLikePokemon->{
                 _state.value = HomeState( pokemons = state.value!!.pokemons, isLoading = true )
@@ -52,17 +49,48 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             //Aqui tu decide pero creo tu tienes un caso de uso para esta parte, nomas retorna directo la info de el repository para no tanto rollo
             homeUseCases.observerPokemonUseCases().collect { pokemonList: List<Pokemon> ->
-                _state.value = HomeState( pokemons = pokemonList, isLoading = false )
+                if (pokemonList.isNotEmpty())  _state.value = HomeState( pokemons = pokemonList, isLoading = false, offset = pokemonList.size  , limit = pokemonList.size + 25)
             }
         }
     }
 
 
     private fun getPokemons() {
-        viewModelScope.launch {
-            homeUseCases.getPokemonsUseCases(0, 25).collectLatest {
-                _state.value = HomeState( pokemons = it, isLoading = false )
+        if(state.value != null){
+            viewModelScope.launch {
+                homeUseCases.getPokemonsUseCases(offset = state.value!!.offset, limit = _state.value!!.limit).collectLatest {
+                    _state.value = HomeState( pokemons = it, isLoading = false , offset = it.size  , limit = _state.value!!.limit + 25)
+                }
             }
         }
+    }
+
+    fun loadMorePokemons() {
+        if (!_state.value!!.isLoadingList && homeUseCases.observerEthernetCases()){
+            viewModelScope.launch {
+            _state.value = HomeState(
+                pokemons = state.value!!.pokemons,
+                isLoading = false,
+                isLoadingList = true,
+                offset = _state.value!!.offset,
+                limit =  _state.value!!.limit
+            )
+            homeUseCases.getPokemonsUseCases( offset = state.value!!.offset, limit = _state.value!!.limit).collectLatest {
+                if(_state.value!!.pokemons.size < it.size ){
+                    _state.value = HomeState(pokemons = it, isLoading = false, isLoadingList = false , offset = it.size, limit = it.size + 25 )
+                }else{
+                    _state.value = HomeState(
+                        pokemons = state.value!!.pokemons,
+                        isLoading = false,
+                        isLoadingList = false,
+                        offset = _state.value!!.offset,
+                        limit =  _state.value!!.limit
+                    )
+                }
+
+            }
+        }
+        }
+
     }
 }

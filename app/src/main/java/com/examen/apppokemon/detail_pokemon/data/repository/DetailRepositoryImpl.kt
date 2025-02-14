@@ -18,11 +18,11 @@ class DetailRepositoryImpl (
     private val api: PokemonApi
 ): DetailRepository {
 
-    override suspend fun getPokemonByName(id: Long): Flow<Pokemon> {
+    override suspend fun getPokemonByName(id: Long, isFavorite: Boolean): Flow<Pokemon> {
         val localFlow = dao.getPokemon(id).map {
             it.toDomain() }
 
-        val apiFlow = getPokemonFromApi(id)
+        val apiFlow = getPokemonFromApi(id,isFavorite)
 
         return  localFlow.combine(apiFlow){db,api ->
             db
@@ -42,11 +42,12 @@ class DetailRepositoryImpl (
       return  dao.getPokemon(id).map { it.toDomain() }
     }
 
-    private fun getPokemonFromApi(id: Long): Flow<Pokemon> {
+    private fun getPokemonFromApi(id: Long, isFavorite: Boolean): Flow<Pokemon> {
         return flow {
             emit(api.getDetailPokemon(id = id))
         }.map {
-            val pokemon = it.toEntity()
+            var pokemon = it.toEntity()
+            pokemon.isFavorite = isFavorite
             insertHabit(pokemon)
             pokemon.toDomain()
         }.catch {

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class GetDetailPokemonUseCases(
     private val repository: DetailRepository
 ) {
-    suspend operator fun invoke(id: Long): Flow<Pokemon> {
-        return repository.getPokemonByName(id)
+    suspend operator fun invoke(id: Long, isFavorite: Boolean): Flow<Pokemon> {
+        return repository.getPokemonByName(id, isFavorite)
     }
 }

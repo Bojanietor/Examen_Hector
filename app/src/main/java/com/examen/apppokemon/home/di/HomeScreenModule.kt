@@ -3,6 +3,7 @@ package com.examen.apppokemon.home.di
 import android.content.Context
 import androidx.room.Room
 import com.examen.apppokemon.core.utils.AuthInterceptor
+import com.examen.apppokemon.core.utils.NetworkHelper
 import com.examen.apppokemon.detail_pokemon.data.repository.DetailRepositoryImpl
 import com.examen.apppokemon.detail_pokemon.domain.repository.DetailRepository
 import com.examen.apppokemon.home.data.local.PokemonDao
@@ -16,6 +17,7 @@ import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.DetailP
 import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.GetDetailPokemonUseCases
 import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.ObserverPokemonDetailUseCases
 import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.SetLikeOrDislikePokemonUseCases
+import com.examen.apppokemon.home.domain.usecase.OberverEthernetUseCase
 import com.examen.apppokemon.home.domain.usecase.ObserverPokemonUseCases
 import com.examen.apppokemon.home.domain.usecase.SetLikeOrDislikePokemonHomeUseCases
 import com.squareup.moshi.Moshi
@@ -40,7 +42,8 @@ object HomeScreenModule {
         return HomeUseCases(
             getPokemonsUseCases = GetPokemonsUseCases(repository),
             observerPokemonUseCases = ObserverPokemonUseCases(repository),
-            setLikeOrDislikePokemonUseCases = SetLikeOrDislikePokemonHomeUseCases(repository)
+            setLikeOrDislikePokemonUseCases = SetLikeOrDislikePokemonHomeUseCases(repository),
+            observerEthernetCases = OberverEthernetUseCase(repository)
         )
     }
 
@@ -97,8 +100,14 @@ object HomeScreenModule {
 
     @Singleton
     @Provides
-    fun provideHomeRepository(dao: PokemonDao, api: PokemonApi): HomeRepository {
-        return HomeRepositoryImpl(dao, api)
+    fun provideNetworkHelper(@ApplicationContext context: Context): NetworkHelper {
+        return NetworkHelper(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideHomeRepository(dao: PokemonDao, api: PokemonApi, networkHelper: NetworkHelper): HomeRepository {
+        return HomeRepositoryImpl(dao, api, networkHelper)
     }
 
     @Singleton

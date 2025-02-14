@@ -17,18 +17,23 @@ fun NavigationHost(
 ){
     NavHost(navController = navHostController, startDestination = startDestination.route) {
         composable(NavigationRoute.Home.route) {
-            HomeScreen(onDetailPokemon = {
-                navHostController.navigate(NavigationRoute.Detail.route + "?pokemonId=$it")
+            HomeScreen(onDetailPokemon = {pokemonid, isFavorite ->
+                navHostController.navigate(NavigationRoute.Detail.route + "?pokemonId=$pokemonid&isFavorite=$isFavorite")
             })
         }
 
         composable(
-            NavigationRoute.Detail.route + "?pokemonId={pokemonId}",
+            NavigationRoute.Detail.route + "?pokemonId={pokemonId}&isFavorite={isFavorite}",
             arguments = listOf(
                 navArgument("pokemonId") {
                     type = NavType.LongType
                     nullable = false
                     defaultValue = 1
+                },
+                navArgument("isFavorite") {
+                    type = NavType.BoolType
+                    nullable = false
+                    defaultValue = false
                 }
             )
         ) {

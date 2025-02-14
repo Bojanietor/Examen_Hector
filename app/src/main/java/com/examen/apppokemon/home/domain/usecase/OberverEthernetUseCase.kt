@@ -4,10 +4,11 @@ import com.examen.apppokemon.home.domain.models.Pokemon.Pokemon
 import com.examen.apppokemon.home.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.Flow
 
-class GetPokemonsUseCases(
+class OberverEthernetUseCase(
     private val repository: HomeRepository
 ) {
-    operator fun invoke(offset: Int, limit: Int): Flow<List<Pokemon>> {
-        return repository.getPokemons(offset = offset, limit = limit)
+
+    operator fun invoke(): Boolean {
+        return repository.hasInternet()
     }
 }
