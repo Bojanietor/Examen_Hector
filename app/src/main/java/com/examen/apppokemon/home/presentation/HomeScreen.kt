@@ -30,17 +30,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.examen.apppokemon.R
-import com.examen.apppokemon.detail_pokemon.presentation.DetailEvent
-import com.examen.apppokemon.home.presentation.components.RowItemPokemon
-import com.examen.apppokemon.detail_pokemon.presentation.DetailPokemonDialog
-import com.examen.apppokemon.detail_pokemon.presentation.DetailState
 import com.examen.apppokemon.home.presentation.components.ExpandedImageDialog
+import com.examen.apppokemon.home.presentation.components.RowItemPokemon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
-    onDetailPokemon: (String) -> Unit,
+    onDetailPokemon: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state : HomeState? by viewModel.state.observeAsState()
@@ -64,7 +61,7 @@ fun HomeScreen(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.matchParentSize())
 
-            if(state == null ||  state!!.pokemons.isEmpty()) {
+            if(state == null || state!!.isLoading) {
                 CircularProgressIndicator(color = Color.Black, modifier = Modifier.align(Alignment.Center))
             }else {
 
@@ -89,10 +86,15 @@ fun HomeScreen(
                         items(state!!.pokemons) { pokemon ->
                             RowItemPokemon(
                                 pokemon = pokemon,
-                                onPokemonClick = {onDetailPokemon(pokemon.name.toString())},
+                                onPokemonClick = {
+                                    if(pokemon.id != null) onDetailPokemon(pokemon.id)
+                                                 },
                                 onPokemonClickImage = {
                                     if (pokemon.sprites != null)  viewModel.onEvent(event = HomeEvent.ShowDetailPokemon(pokemon.sprites.frontDefault.toString()))
                                 },
+                                onSelectFavorite = {pokemon ->
+                                    viewModel.onEvent(HomeEvent.onlikeOrDisLikePokemon(pokemon))
+                                }
                             )
                         }
                     }

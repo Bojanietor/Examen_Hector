@@ -36,6 +36,12 @@ class HomeRepositoryImpl(
 
     }
 
+    override suspend fun setPokemonByName(pokemon: Pokemon): Flow<List<Pokemon>> {
+        dao.insertPokemon(pokemon.toEntity())
+        return dao.getAllPokemonList().map {
+            it.map { it.toDomain() } }
+    }
+
 
     private fun getAllPokemonsFromApi(offset: Int, limit: Int): Flow<List<Pokemon>> {
         return flow {

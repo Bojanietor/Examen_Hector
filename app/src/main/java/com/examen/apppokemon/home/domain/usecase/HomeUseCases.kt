@@ -4,5 +4,6 @@ import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.GetDeta
 
 data class HomeUseCases(
  val getPokemonsUseCases: GetPokemonsUseCases,
- val observerPokemonUseCases: ObserverPokemonUseCases
+ val observerPokemonUseCases: ObserverPokemonUseCases,
+ val setLikeOrDislikePokemonUseCases: SetLikeOrDislikePokemonHomeUseCases
 )

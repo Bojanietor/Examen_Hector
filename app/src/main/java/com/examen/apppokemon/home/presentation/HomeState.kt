@@ -10,4 +10,5 @@ data class HomeState(
     val showDetail: Boolean = false,
     val selectedPokemon: String = "",
     val selectedPokemonImage: String = "",
+    val isLoading : Boolean = true
 ): Parcelable

@@ -30,7 +30,8 @@ fun RowItemPokemon(
     pokemon: Pokemon,
     modifier: Modifier = Modifier,
     onPokemonClick: () -> Unit,
-    onPokemonClickImage: (String) -> Unit
+    onPokemonClickImage: (String) -> Unit,
+    onSelectFavorite: (Pokemon) -> Unit
 ){
 
     Surface(
@@ -68,15 +69,15 @@ fun RowItemPokemon(
 
             if(pokemon.isFavorite == true){
                 Image(modifier = Modifier.size(17.dp).clickable {
-                  /*  val pokemonEdit : Pokemon = pokemon!!
+                   val pokemonEdit : Pokemon = pokemon!!
                     pokemonEdit.isFavorite = !pokemonEdit.isFavorite
-                    viewModel.onEvent(DetailEvent.onlikeOrDisLikePokemon(pokemonEdit))*/
+                    onSelectFavorite(pokemonEdit)
                 }, painter = painterResource(id = R.drawable.corazon_like), contentDescription = "like")
             }else{
                 Image( painter = painterResource(id = R.drawable.corazon_unlike), contentDescription = "unlike", modifier = Modifier.size(17.dp).clickable {
-                   /* val pokemonEdit : Pokemon = state!!.pokemon!!
+                    val pokemonEdit : Pokemon = pokemon!!
                     pokemonEdit.isFavorite = !pokemonEdit.isFavorite
-                    viewModel.onEvent(DetailEvent.onlikeOrDisLikePokemon(pokemonEdit))*/
+                    onSelectFavorite(pokemonEdit)
                 })
             }
         }

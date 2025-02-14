@@ -17,7 +17,7 @@ interface PokemonApi {
 
 
 
-    @GET("{name}")
-    suspend fun  getDetailPokemon(@Path("name") name: String) : PokemonDetailV2Response
+    @GET("{id}")
+    suspend fun  getDetailPokemon(@Path("id") id: Long) : PokemonDetailV2Response
 
 }

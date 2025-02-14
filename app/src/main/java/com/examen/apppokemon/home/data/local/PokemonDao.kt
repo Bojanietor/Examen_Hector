@@ -13,8 +13,8 @@ interface PokemonDao {
     @Query("SELECT * FROM PokemonEntity")
     fun getAllPokemonList(): Flow<List<PokemonEntity>>
 
-    @Query("SELECT * FROM PokemonEntity WHERE PokemonEntity.name = :namePokemon LIMIT 1")
-    fun getPokemon(namePokemon: String): Flow<PokemonEntity>
+    @Query("SELECT * FROM PokemonEntity WHERE PokemonEntity.id = :id LIMIT 1")
+    fun getPokemon(id: Long): Flow<PokemonEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHabits(pokemonEntitys: List<PokemonEntity>)

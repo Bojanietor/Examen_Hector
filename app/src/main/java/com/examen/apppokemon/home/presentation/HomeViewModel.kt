@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.examen.apppokemon.detail_pokemon.presentation.DetailState
 import com.examen.apppokemon.home.domain.models.Pokemon.Pokemon
 import com.examen.apppokemon.home.domain.usecase.HomeUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,10 +32,18 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.ShowDetailPokemon -> {
-                _state.value = HomeState( showDetail = true, selectedPokemonImage = event.name, pokemons = state.value!!.pokemons)
+                _state.value = HomeState( showDetail = true, selectedPokemonImage = event.urlImage, pokemons = state.value!!.pokemons)
             }
             is HomeEvent.HiddenDetailPokemon -> {
-                _state.value = HomeState( showDetail = false, selectedPokemonImage = "")
+                _state.value = HomeState( showDetail = false, selectedPokemonImage = "", pokemons = state.value!!.pokemons)
+            }
+            is HomeEvent.onlikeOrDisLikePokemon->{
+                _state.value = HomeState( pokemons = state.value!!.pokemons, isLoading = true )
+                viewModelScope.launch {
+                    homeUseCases.setLikeOrDislikePokemonUseCases(event.pokemon).collect {
+                        _state.value = HomeState( pokemons = it, isLoading = false )
+                    }
+                }
             }
         }
     }
@@ -43,7 +52,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             //Aqui tu decide pero creo tu tienes un caso de uso para esta parte, nomas retorna directo la info de el repository para no tanto rollo
             homeUseCases.observerPokemonUseCases().collect { pokemonList: List<Pokemon> ->
-                _state.value = HomeState(pokemonList)
+                _state.value = HomeState( pokemons = pokemonList, isLoading = false )
             }
         }
     }
@@ -52,7 +61,7 @@ class HomeViewModel @Inject constructor(
     private fun getPokemons() {
         viewModelScope.launch {
             homeUseCases.getPokemonsUseCases(0, 25).collectLatest {
-                _state.value = HomeState( pokemons = it)
+                _state.value = HomeState( pokemons = it, isLoading = false )
             }
         }
     }

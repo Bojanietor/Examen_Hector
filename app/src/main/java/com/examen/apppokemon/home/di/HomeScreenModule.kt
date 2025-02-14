@@ -17,6 +17,7 @@ import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.GetDeta
 import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.ObserverPokemonDetailUseCases
 import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.SetLikeOrDislikePokemonUseCases
 import com.examen.apppokemon.home.domain.usecase.ObserverPokemonUseCases
+import com.examen.apppokemon.home.domain.usecase.SetLikeOrDislikePokemonHomeUseCases
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -38,7 +39,8 @@ object HomeScreenModule {
     fun provideHomeUseCases(repository: HomeRepository): HomeUseCases {
         return HomeUseCases(
             getPokemonsUseCases = GetPokemonsUseCases(repository),
-            observerPokemonUseCases = ObserverPokemonUseCases(repository)
+            observerPokemonUseCases = ObserverPokemonUseCases(repository),
+            setLikeOrDislikePokemonUseCases = SetLikeOrDislikePokemonHomeUseCases(repository)
         )
     }
 

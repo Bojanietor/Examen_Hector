@@ -24,10 +24,10 @@ class PokemonDetailViewModel @Inject constructor(
     val _state = MutableLiveData<DetailState>()
     val state : LiveData<DetailState> = _state
     init {
-        val pokemonName = savedStateHandle.get<String?>("pokemonName")
-        if (pokemonName != null) {
-            observerPokemon(pokemonName)
-            getPokemonDetail(pokemonName)
+        val pokemonId = savedStateHandle.get<Long?>("pokemonId")
+        if (pokemonId != null) {
+            observerPokemon(pokemonId)
+            getPokemonDetail(pokemonId)
 
         }
     }
@@ -48,18 +48,18 @@ class PokemonDetailViewModel @Inject constructor(
 
     }
 
-    private fun observerPokemon(name: String) {
+    private fun observerPokemon(id: Long) {
         viewModelScope.launch {
             //Aqui tu decide pero creo tu tienes un caso de uso para esta parte, nomas retorna directo la info de el repository para no tanto rollo
-            detailPokemonUseCases.observerPokemonUseCases(name).collect { pokemon: Pokemon ->
+            detailPokemonUseCases.observerPokemonUseCases(id).collect { pokemon: Pokemon ->
                 _state.value = DetailState(pokemon = pokemon, isLoading = false)
             }
         }
     }
 
-        fun getPokemonDetail(name: String ) {
+        fun getPokemonDetail(id: Long ) {
         viewModelScope.launch {
-            detailPokemonUseCases.getDetailPokemonUseCases(name).collectLatest {
+            detailPokemonUseCases.getDetailPokemonUseCases(id).collectLatest {
                 _state.value = DetailState(pokemon = it, isLoading = false)
             }
         }

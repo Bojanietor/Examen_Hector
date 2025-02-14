@@ -8,7 +8,7 @@ class ObserverPokemonDetailUseCases(
     private val repository: DetailRepository
 ) {
 
-    suspend operator fun invoke(name: String): Flow<Pokemon> {
-        return repository.observerPokemon(name)
+    suspend operator fun invoke(id: Long): Flow<Pokemon> {
+        return repository.observerPokemon(id)
     }
 }

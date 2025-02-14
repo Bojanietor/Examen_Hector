@@ -6,4 +6,5 @@ import kotlinx.coroutines.flow.Flow
 interface HomeRepository {
     fun getPokemons(offset: Int, limit: Int): Flow<List<Pokemon>>
     fun observerPokemon():  Flow<List<Pokemon>>
+    suspend fun setPokemonByName(pokemon: Pokemon): Flow<List<Pokemon>>
 }
