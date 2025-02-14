@@ -60,10 +60,6 @@ fun HomeScreen(
         topBar = {
             CenterAlignedTopAppBar(title = {
                 Text(text = "Home")
-            }, navigationIcon = {
-                IconButton(onClick = {}) {
-                    Icon(imageVector = Icons.Default.Settings, contentDescription = "settings")
-                }
             })
         }
     ) {

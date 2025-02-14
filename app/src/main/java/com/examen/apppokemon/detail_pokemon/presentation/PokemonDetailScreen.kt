@@ -5,11 +5,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,7 +48,7 @@ fun DetailPokemonDialog(
 
         Box(
             modifier = Modifier
-                .background(Color.White).fillMaxSize()
+                .background(Color.White).fillMaxSize().padding(top = 30.dp)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.pokemon_background), // Reemplaza con tu imagen
@@ -50,8 +56,15 @@ fun DetailPokemonDialog(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.matchParentSize()
             )
+            IconButton({onBack()}) {
+                Icon(
+                    modifier = Modifier.size(30.dp),
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = ""
+                )
+            }
             if(state == null || state!!.isLoading){
-                CircularProgressIndicator(color = Color.Black)
+                CircularProgressIndicator(color = Color.Black, modifier = Modifier.align(Alignment.Center))
             }else {
                 Column(
                     modifier = Modifier
