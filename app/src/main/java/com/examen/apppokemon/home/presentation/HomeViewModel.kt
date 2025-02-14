@@ -1,10 +1,13 @@
 package com.examen.apppokemon.home.presentation
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.examen.apppokemon.home.domain.models.Pokemon.Pokemon
 import com.examen.apppokemon.home.domain.usecase.HomeUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -15,26 +18,32 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val homeUseCases: HomeUseCases
 ) : ViewModel() {
-    var state by mutableStateOf(HomeState())
-        private set
+   private val _state = MutableLiveData<HomeState>()
+    val state : LiveData<HomeState> = _state
 
     init {
+        observerPokemon()
         getPokemons()
+
     }
+
 
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.ShowDetailPokemon -> {
-                state = state.copy(
-                    showDetail = true,
-                    selectedPokemon = event.name
-                )
+                _state.value = HomeState( showDetail = true, selectedPokemonImage = event.name, pokemons = state.value!!.pokemons)
             }
             is HomeEvent.HiddenDetailPokemon -> {
-                state = state.copy(
-                    showDetail = false,
-                    selectedPokemon = ""
-                )
+                _state.value = HomeState( showDetail = false, selectedPokemonImage = "")
+            }
+        }
+    }
+
+    private fun observerPokemon() {
+        viewModelScope.launch {
+            //Aqui tu decide pero creo tu tienes un caso de uso para esta parte, nomas retorna directo la info de el repository para no tanto rollo
+            homeUseCases.observerPokemonUseCases().collect { pokemonList: List<Pokemon> ->
+                _state.value = HomeState(pokemonList)
             }
         }
     }
@@ -43,9 +52,7 @@ class HomeViewModel @Inject constructor(
     private fun getPokemons() {
         viewModelScope.launch {
             homeUseCases.getPokemonsUseCases(0, 25).collectLatest {
-                state = state.copy(
-                    pokemons = it
-                )
+                _state.value = HomeState( pokemons = it)
             }
         }
     }

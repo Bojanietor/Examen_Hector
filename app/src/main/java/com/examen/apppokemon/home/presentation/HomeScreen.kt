@@ -13,12 +13,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,17 +30,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.examen.apppokemon.R
+import com.examen.apppokemon.detail_pokemon.presentation.DetailEvent
 import com.examen.apppokemon.home.presentation.components.RowItemPokemon
-import com.examen.apppokemon.home.presentation.detail.DetailPokemonDialog
+import com.examen.apppokemon.detail_pokemon.presentation.DetailPokemonDialog
+import com.examen.apppokemon.detail_pokemon.presentation.DetailState
+import com.examen.apppokemon.home.presentation.components.ExpandedImageDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
-    onDetailPokemon: () -> Unit,
+    onDetailPokemon: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state = viewModel.state
+    val state : HomeState? by viewModel.state.observeAsState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -51,41 +57,50 @@ fun HomeScreen(
         }
     ) {
 
-        Box(modifier = modifier.background(Color.White)) {
+        Box(modifier = modifier.background(Color.White).fillMaxSize(), contentAlignment = Alignment.Center) {
             Image(
                 painter = painterResource(id = R.drawable.pokemon_background), // Reemplaza con tu imagen
                 contentDescription = "Fondo",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.matchParentSize()
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+                modifier = Modifier.matchParentSize())
 
+            if(state == null ||  state!!.pokemons.isEmpty()) {
+                CircularProgressIndicator(color = Color.Black, modifier = Modifier.align(Alignment.Center))
+            }else {
 
-                LazyColumn(
+                Column(
                     modifier = Modifier
-                        .padding(it)
-                        .padding(start = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(bottom = 20.dp)
-                ) {
-                    item {
 
-                    }
-                    items(state.pokemons){
-                        RowItemPokemon(it){
-                            viewModel.onEvent(HomeEvent.ShowDetailPokemon(name = it.name.toString()))
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(it)
+                            .padding(start = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        contentPadding = PaddingValues(bottom = 20.dp)
+                    ) {
+                        item {
+
+                        }
+                        items(state!!.pokemons) { pokemon ->
+                            RowItemPokemon(
+                                pokemon = pokemon,
+                                onPokemonClick = {onDetailPokemon(pokemon.name.toString())},
+                                onPokemonClickImage = {
+                                    if (pokemon.sprites != null)  viewModel.onEvent(event = HomeEvent.ShowDetailPokemon(pokemon.sprites.frontDefault.toString()))
+                                },
+                            )
                         }
                     }
                 }
-
-                if (state.showDetail) {
-                    DetailPokemonDialog(name = state.selectedPokemon,onDismiss = { viewModel.onEvent(HomeEvent.HiddenDetailPokemon(showDetail = false)) })
-                }
+            }
+            if (state != null &&  state!!.showDetail) {
+                ExpandedImageDialog(imageUrl = state!!.selectedPokemonImage,onDismiss = { viewModel.onEvent(
+                    HomeEvent.HiddenDetailPokemon(showDetail = false)) })
             }
         }
 

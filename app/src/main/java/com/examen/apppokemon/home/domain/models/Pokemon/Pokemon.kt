@@ -1,10 +1,13 @@
 package com.examen.apppokemon.home.domain.models.Pokemon
 
-import com.examen.apppokemon.home.domain.models.pokemonDetail.Sprites
-import com.examen.apppokemon.home.domain.models.pokemonDetail.Type
+import android.os.Parcelable
+import com.examen.apppokemon.detail_pokemon.domain.models.pokemonDetail.Sprites
+import com.examen.apppokemon.detail_pokemon.domain.models.pokemonDetail.Type
 import com.squareup.moshi.JsonClass
+import kotlinx.parcelize.Parcelize
 
 @JsonClass(generateAdapter = true)
+@Parcelize
 data class Pokemon (
     val id: Long?= null,
     val name: String? = null,
@@ -13,5 +16,5 @@ data class Pokemon (
     val height: Long? = null,
     val weight: Long? = null,
     val types: List<Type>? = null,
-    val isFavorite: Boolean = false
-)
+    var isFavorite: Boolean = false
+) : Parcelable

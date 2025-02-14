@@ -1,16 +1,19 @@
 package com.examen.apppokemon.home.data.repository
 
-import com.examen.apppokemon.home.data.local.PokemonDao
 import com.examen.apppokemon.home.data.local.Entity.PokemonEntity
+import com.examen.apppokemon.home.data.local.PokemonDao
 import com.examen.apppokemon.home.data.mapper.toDomain
 import com.examen.apppokemon.home.data.mapper.toEntity
 import com.examen.apppokemon.home.data.remote.PokemonApi
 import com.examen.apppokemon.home.domain.models.Pokemon.Pokemon
 import com.examen.apppokemon.home.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.zip
 
 class HomeRepositoryImpl(
     private val dao: PokemonDao,
@@ -22,18 +25,26 @@ class HomeRepositoryImpl(
 
         val apiFlow = getAllPokemonsFromApi(offset = offset, limit = limit)
 
-        return localFlow.combine(apiFlow){db, _ ->
+
+        return localFlow.combine(apiFlow){db,api->
             db
         }
     }
 
-    override suspend fun getPokemonByName(name: String): Flow<Pokemon> {
-        return getPokemonFromApi(name)
+    override fun observerPokemon(): Flow<List<Pokemon>> {
+      return   dao.getAllPokemonList().map{ it.map { it.toDomain() }}
+
     }
+
 
     private fun getAllPokemonsFromApi(offset: Int, limit: Int): Flow<List<Pokemon>> {
         return flow {
             emit(api.getAllPokemons(limit = limit, offset = offset))
+        }.onStart {
+            emptyList<Pokemon>()
+        }.catch {e ->
+            println("Error al obtener pokemons de la API: ${e.message}")
+           emptyList<Pokemon>()
         }.map {
             val pokemons = it.toDomain()
             insertHabits(pokemons)
@@ -41,19 +52,6 @@ class HomeRepositoryImpl(
         }
     }
 
-    private fun getPokemonFromApi(name: String): Flow<Pokemon> {
-        return flow {
-            emit(api.getDetailPokemon(name = name))
-        }.map {
-            val pokemon = it.toEntity()
-            insertHabit(pokemon)
-            pokemon.toDomain()
-        }
-    }
-
-    private suspend fun insertHabit(pokemon: PokemonEntity) {
-        dao.insertPokemon(pokemon)
-    }
 
     private suspend fun insertHabits(pokemons: List<Pokemon>) {
         dao.insertHabits(pokemons.map { it.toEntity() })

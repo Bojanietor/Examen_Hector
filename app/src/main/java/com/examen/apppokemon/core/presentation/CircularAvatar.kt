@@ -2,6 +2,7 @@ package com.examen.apppokemon.core.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -34,7 +35,8 @@ fun CircularAvatar(
     size: Dp = 100.dp,
     fontSize: TextUnit = 24.sp,
     backgroundColor: Color = Color.Gray,
-    textColor: Color = Color.White
+    textColor: Color = Color.White,
+    onPokemonClickImage: (String) -> Unit?
     ){
     Box(modifier = Modifier
         .size(size)
@@ -45,7 +47,9 @@ fun CircularAvatar(
             AsyncImage(
 
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize().clip(CircleShape),
+                modifier = Modifier.fillMaxSize().clip(CircleShape).clickable {
+                    onPokemonClickImage(imageUrl)
+                },
                model = ImageRequest.Builder(LocalContext.current).data(imageUrl)
                    .crossfade(true)
                    .build(),

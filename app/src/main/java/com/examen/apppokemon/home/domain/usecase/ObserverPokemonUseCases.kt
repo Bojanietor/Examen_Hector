@@ -6,10 +6,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
-class GetPokemonsUseCases(
+class ObserverPokemonUseCases(
     private val repository: HomeRepository
 ) {
-    operator fun invoke(offset: Int, limit: Int): Flow<List<Pokemon>> {
+    operator fun invoke(): Flow<List<Pokemon>> {
         return repository.observerPokemon()
     }
 }

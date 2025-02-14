@@ -7,7 +7,7 @@ data class PokemonListResponse (
           val count: Long? = null,
           val next: String? = null,
           val previous: String? = null,
-          val results: List<Pokemon>? = null
+          val results: List<Pokemon>
 )
 
 

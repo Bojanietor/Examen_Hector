@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.examen.apppokemon.home.data.local.Entity.PokemonEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -12,7 +13,8 @@ interface PokemonDao {
     @Query("SELECT * FROM PokemonEntity")
     fun getAllPokemonList(): Flow<List<PokemonEntity>>
 
-
+    @Query("SELECT * FROM PokemonEntity WHERE PokemonEntity.name = :namePokemon LIMIT 1")
+    fun getPokemon(namePokemon: String): Flow<PokemonEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHabits(pokemonEntitys: List<PokemonEntity>)

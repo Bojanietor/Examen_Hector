@@ -3,9 +3,9 @@ package com.examen.apppokemon.home.data.mapper
 import com.examen.apppokemon.home.data.local.Entity.PokemonEntity
 import com.examen.apppokemon.home.domain.models.Pokemon.Pokemon
 import com.examen.apppokemon.home.domain.models.Pokemon.PokemonListResponse
-import com.examen.apppokemon.home.domain.models.pokemonDetail.PokemonDetailV2Response
-import com.examen.apppokemon.home.domain.models.pokemonDetail.Sprites
-import com.examen.apppokemon.home.domain.models.pokemonDetail.Type
+import com.examen.apppokemon.detail_pokemon.domain.models.pokemonDetail.PokemonDetailV2Response
+import com.examen.apppokemon.detail_pokemon.domain.models.pokemonDetail.Sprites
+import com.examen.apppokemon.detail_pokemon.domain.models.pokemonDetail.Type
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -33,23 +33,45 @@ fun PokemonEntity.toDomain(): Pokemon {
         height = this.height,
         weight = this.weight,
         types = tagList,
+        isFavorite = this.isFavorite
     )
 }
 
 fun Pokemon.toEntity(): PokemonEntity {
-    var id = "1"
-    val url = this.url.toString()
+    if (this.url != null){
+        var id = "1"
+        val url = this.url.toString()
 
-    val regex = """/pokemon/(\d+)/""".toRegex()
-    val match = regex.find(url)
+        val regex = """/pokemon/(\d+)/""".toRegex()
+        val match = regex.find(url)
 
-    if (match != null) {
-        id = match.groupValues[1]
+        if (match != null) {
+            id = match.groupValues[1]
+        }
+        return PokemonEntity(
+            id = id.toLong(),
+            name = this.name,
+        )
+
+    }else{
+        val moshi: Moshi = Moshi.Builder().build()
+        val jsonAdapter: JsonAdapter<List<Type>> = moshi.adapter<List<Type>>(List::class.java)
+        val typesString: String = jsonAdapter.toJson(this.types)
+
+        val jsonAdapterSprite = moshi.adapter(Sprites::class.java)
+
+        val spriteString = jsonAdapterSprite.toJson(this.sprites)
+        return PokemonEntity(
+            id = this.id,
+            name = this.name,
+            sprites = spriteString,
+            height = this.height,
+            weight = this.weight,
+            types = typesString,
+            isFavorite = this.isFavorite
+        )
     }
-    return PokemonEntity(
-        id = id.toLong(),
-        name = this.name,
-    )
+
 }
 
 fun PokemonListResponse.toDomain(): List<Pokemon> {
@@ -65,18 +87,18 @@ fun PokemonListResponse.toDomain(): List<Pokemon> {
 fun PokemonDetailV2Response.toEntity(): PokemonEntity {
     val moshi: Moshi = Moshi.Builder().build()
     val jsonAdapter: JsonAdapter<List<Type>> = moshi.adapter<List<Type>>(List::class.java)
-    val json: String = jsonAdapter.toJson(this.types)
+    val typesString: String = jsonAdapter.toJson(this.types)
 
     val jsonAdapterSprite = moshi.adapter(Sprites::class.java)
 
-    val jsonString = jsonAdapterSprite.toJson(this.sprites)
+    val spriteString = jsonAdapterSprite.toJson(this.sprites)
     return PokemonEntity(
         id = this.id,
         name = this.name,
-        sprites = jsonString,
+        sprites = spriteString,
         height = this.height,
         weight = this.weight,
-        types =  json ,
+        types =  typesString ,
     )
 }
 

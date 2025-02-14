@@ -3,6 +3,8 @@ package com.examen.apppokemon.home.di
 import android.content.Context
 import androidx.room.Room
 import com.examen.apppokemon.core.utils.AuthInterceptor
+import com.examen.apppokemon.detail_pokemon.data.repository.DetailRepositoryImpl
+import com.examen.apppokemon.detail_pokemon.domain.repository.DetailRepository
 import com.examen.apppokemon.home.data.local.PokemonDao
 import com.examen.apppokemon.home.data.local.PokemonDatabase
 import com.examen.apppokemon.home.data.remote.PokemonApi
@@ -10,8 +12,11 @@ import com.examen.apppokemon.home.data.repository.HomeRepositoryImpl
 import com.examen.apppokemon.home.domain.repository.HomeRepository
 import com.examen.apppokemon.home.domain.usecase.GetPokemonsUseCases
 import com.examen.apppokemon.home.domain.usecase.HomeUseCases
-import com.examen.apppokemon.home.domain.usecase.pokemonDetail.DetailPokemonUseCases
-import com.examen.apppokemon.home.domain.usecase.pokemonDetail.GetDetailPokemonUseCases
+import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.DetailPokemonUseCases
+import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.GetDetailPokemonUseCases
+import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.ObserverPokemonDetailUseCases
+import com.examen.apppokemon.detail_pokemon.domain.usecase.pokemonDetail.SetLikeOrDislikePokemonUseCases
+import com.examen.apppokemon.home.domain.usecase.ObserverPokemonUseCases
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
@@ -33,15 +38,18 @@ object HomeScreenModule {
     fun provideHomeUseCases(repository: HomeRepository): HomeUseCases {
         return HomeUseCases(
             getPokemonsUseCases = GetPokemonsUseCases(repository),
-            getDetailPokemonUseCases = GetDetailPokemonUseCases(repository)
+            observerPokemonUseCases = ObserverPokemonUseCases(repository)
         )
     }
 
     @Singleton
     @Provides
-    fun provideDetailUseCases(repository: HomeRepository): DetailPokemonUseCases {
+    fun provideDetailUseCases(repository: DetailRepository): DetailPokemonUseCases {
         return DetailPokemonUseCases(
-            getDetailPokemonUseCases = GetDetailPokemonUseCases(repository)
+            getDetailPokemonUseCases = GetDetailPokemonUseCases(repository),
+            setLikeOrDislikePokemonUseCases = SetLikeOrDislikePokemonUseCases(repository),
+            observerPokemonUseCases = ObserverPokemonDetailUseCases(repository)
+
         )
     }
 
@@ -89,5 +97,11 @@ object HomeScreenModule {
     @Provides
     fun provideHomeRepository(dao: PokemonDao, api: PokemonApi): HomeRepository {
         return HomeRepositoryImpl(dao, api)
+    }
+
+    @Singleton
+    @Provides
+    fun provideDetailRepository(dao: PokemonDao, api: PokemonApi): DetailRepository {
+        return DetailRepositoryImpl(dao, api)
     }
 }
